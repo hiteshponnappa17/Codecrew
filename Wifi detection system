@@ -1,0 +1,102 @@
+import { useState, useEffect } from 'react'
+import { AlertTriangle, Shield, Wifi } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+
+type Device = {
+  id: string
+  name: string
+  status: 'online' | 'offline' | 'compromised'
+}
+
+type SecurityAlert = {
+  id: string
+  deviceId: string
+  message: string
+  severity: 'low' | 'medium' | 'high'
+}
+
+export default function Dashboard() {
+  const [devices, setDevices] = useState<Device[]>([])
+  const [alerts, setAlerts] = useState<SecurityAlert[]>([])
+
+  useEffect(() => {
+    // Simulating fetching devices and alerts
+    setDevices([
+      { id: '1', name: 'Smart Camera', status: 'online' },
+      { id: '2', name: 'Smart Lock', status: 'compromised' },
+      { id: '3', name: 'Thermostat', status: 'offline' },
+    ])
+    setAlerts([
+      { id: '1', deviceId: '2', message: 'Unusual access attempt detected', severity: 'high' },
+    ])
+  }, [])
+
+  const handleIsolateDevice = (deviceId: string) => {
+    // Implement device isolation logic here
+    console.log(`Isolating device ${deviceId}`)
+  }
+
+  return (
+    <div className="p-8">
+      <h1 className="text-3xl font-bold mb-6">IoT Security Dashboard</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Devices</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul>
+              {devices.map(device => (
+                <li key={device.id} className="flex items-center justify-between mb-2">
+                  <span>
+                    <Wifi className="inline mr-2" />
+                    {device.name}
+                  </span>
+                  <span className={`px-2 py-1 rounded ${
+                    device.status === 'online' ? 'bg-green-200 text-green-800' :
+                    device.status === 'offline' ? 'bg-gray-200 text-gray-800' :
+                    'bg-red-200 text-red-800'
+                  }`}>
+                    {device.status}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Security Alerts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {alerts.map(alert => (
+              <Alert key={alert.id} variant={alert.severity === 'high' ? 'destructive' : 'default'}>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Alert for {devices.find(d => d.id === alert.deviceId)?.name}</AlertTitle>
+                <AlertDescription>{alert.message}</AlertDescription>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-2"
+                  onClick={() => handleIsolateDevice(alert.deviceId)}
+                >
+                  Isolate Device
+                </Button>
+              </Alert>
+            ))}
+            {alerts.length === 0 && (
+              <div className="text-center py-4">
+                <Shield className="mx-auto mb-2" />
+                No active alerts
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
